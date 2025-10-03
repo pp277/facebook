@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Env & secrets
+.env
+
+# Logs
+logs/
+*.log
+
+# SQLite DB
+news_storage.sqlite3
+
+# Node artifacts (if any)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+

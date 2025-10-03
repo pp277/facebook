@@ -1,0 +1,129 @@
+1. News Fetching (XML Parser)
+
+News Format: News will be fetched in XML format. You need a parser to extract the relevant information (e.g., title, body, publication date, source URL).
+
+XML Parser: Use a popular XML parser like lxml or xml.etree.ElementTree in Python for robust XML parsing. Ensure it can handle malformed XML and other edge cases.
+
+Drop Box: News will drop into a temporary storage box before processing. This allows for any necessary checks or delays before rephrasing and posting.
+
+Temporary Storage: Store the news in a database or in-memory storage (like Redis), with a TTL (time-to-live) of 24 hours. After this period, it auto-clears from the database.
+
+2. AI Rephrasing (Using Tiri API)
+
+AI API Selection: Use the Tiri API for rephrasing, with the ability to retry another key if one fails (high availability). You will need 3 different Tiri API keys to ensure that if one fails, the other is used.
+
+API Key Management: Store API keys securely using .env files (with libraries like python-dotenv) so that they are not directly exposed in the code.
+
+Retry Mechanism: Implement an automatic retry mechanism for failed requests. You can implement exponential backoff to avoid bombarding the API with too many requests in case of errors.
+
+3. Configurable Time & Delay Handling
+
+Delay Between News: When multiple news stories arrive at once, implement a delay mechanism to control the rate at which news is sent for rephrasing. This can be a configurable delay between processing each item (in seconds).
+
+Configurable Parameters: All time-related configurations (e.g., delay time, feed refresh time, and storage TTL) should be easily adjustable via a configuration file (e.g., config.yml or .env).
+
+Max Delay Between News: Allow a configurable maximum delay between processing each news item in case of a burst of news drops.
+
+4. Social Media Posting (Facebook)
+
+Posting to Facebook: After rephrasing, post the news to Facebook. This can be done using the Facebook Graph API.
+
+Allow configuration for adding more social media platforms in the future.
+
+Make it easy to add multiple accounts or platforms (e.g., Twitter, Instagram).
+
+5. Error Handling & Recovery
+
+Error Handling: Implement thorough error handling for every step of the process (fetching news, rephrasing, posting to Facebook). If one part fails, retry the operation and log the error.
+
+Logging: Store logs for every step in a separate log file or send them to a monitoring service like Sentry, Loggly, etc.
+
+Log Details: Log every step: fetching news, rephrasing success/failure, posting success/failure.
+
+Logs should auto-clear after 24 hours, and this should be configurable.
+
+6. Monitoring & Logging
+
+Logging: Record logs for all operations and ensure that you capture detailed messages for debugging purposes.
+
+Log Rotation & Deletion: After 24 hours, automatically clear logs to prevent data overload in your storage.
+
+7. Database Management
+
+Database: Use a simple database (e.g., PostgreSQL, SQLite, or MySQL) for storing the news items temporarily. Ensure it can scale and handle multiple feeds and API keys.
+
+Auto-clear: Every 24 hours, clear news from the database to avoid overloading the storage.
+
+Separation of Concerns: Separate the logic of fetching news, rephrasing, and posting to maintain modularity in your application.
+
+8. Deployment & Flexibility
+
+GitHub Deployment: You’ll push everything to GitHub. Afterward, you can deploy on an Ubuntu server.
+
+Ubuntu Deployment Guide: Provide a detailed step-by-step guide starting from git clone to configuring the environment, installing dependencies, and setting up cron jobs for automation.
+
+Multi-Platform: In the future, if you want to add more platforms, ensure that the architecture is flexible enough for someone else to add new agents or platforms with ease.
+
+9. Configuration & Customization
+
+Feed Customization: All news feeds will be configurable, and you can add or change feeds in the configuration files easily.
+
+Platform Customization: Similarly, the social media platforms and accounts can be added or removed without code changes—just modify the config.
+
+All Configurations in One Place: Use a central configuration file (e.g., config.yml or .env) to manage API keys, news feeds, time delays, database credentials, and other system settings.
+
+10. Reliability
+
+Retry on Failure: Ensure that any failures during API calls (either AI or posting to social media) trigger a retry mechanism to maintain continuous operation.
+
+Monitoring: Implement some monitoring or alerting system that can notify you if any critical part of the process fails or experiences high latency.
+
+Summary of the Architecture:
+
+News Fetching:
+
+Fetch news in XML format.
+
+Parse and extract relevant info using an XML parser.
+
+Store news temporarily.
+
+Duplicate Check (Already Removed):
+
+No longer necessary to check for duplicates before rephrasing.
+
+AI Rephrasing:
+
+Use Tiri API for rephrasing.
+
+Handle retries using multiple API keys.
+
+Posting to Social Media:
+
+Post to Facebook (with future ability to add more platforms).
+
+Database:
+
+Store news temporarily.
+
+Clear storage after 24 hours (configurable).
+
+Delay Handling:
+
+Configurable delay between processing each news item, especially during high traffic.
+
+Error Handling & Logging:
+
+Implement error handling, retries, and logging for every major operation.
+
+Monitoring:
+
+Store logs and auto-clear after 24 hours.
+
+Monitor system status.
+
+Deployment:
+
+Detailed guide for deploying on Ubuntu.
+
+Configurable feed URLs, times, and platforms.
