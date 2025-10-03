@@ -1,60 +1,68 @@
-## News Auto Publisher (Fresh Build)
+## News Auto Publisher (WebSub - Instant News Drops)
 
-This is a clean, production-ready starter that:
+This is a production-ready system that:
 
-- Ingests RSS/Atom feeds
-- Rewrites items to engaging social copy using Groq LLM
-- Publishes to Facebook Pages via the Graph API
+- **Instant news processing** via Superfeedr WebSub (no polling!)
+- **Robust XML parsing** for any RSS/Atom format
+- **AI rephrasing** using Tiri/Groq LLM with automatic failover
+- **Multi-platform posting** to Facebook pages and Twitter accounts
+- **WebSub webhook server** for instant notifications
 
 ### Features
-- Environment-based config (.env)
-- Safe secret handling (no hardcoded tokens)
-- Retries, timeouts, and structured logging
-- Modular architecture (LLM client, Facebook client, RSS fetcher)
- - Multi-account Facebook pages
- - Optional Twitter/X support (multi-account)
+- **WebSub-based**: Instant processing when news drops (not polling)
+- **Robust XML parser**: Handles any RSS/Atom format with fallbacks
+- **Multi-account support**: Multiple Facebook pages and Twitter accounts
+- **AI failover**: 3 API keys with automatic retry and key rotation
+- **Production-ready**: Structured logging, error handling, systemd service
+- **Secure**: Environment-based config, no hardcoded secrets
 
 ### Quick start
 1. Create and activate a Python 3.10+ virtualenv.
-2. Copy `.env.example` to `.env` and fill values.
+2. Copy `.env.example` to `.env` and fill values (Superfeedr credentials, callback URL, API keys).
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Run a one-off publish from CLI:
+4. Subscribe to feeds (one-time setup):
    ```bash
-   python -m app.cli.publish_once
+   python -m app.cli.subscribe_feeds
    ```
-5. Start the webhook/health server (optional):
+5. Start the WebSub server:
    ```bash
    uvicorn app.server:app --host 0.0.0.0 --port 8000
    ```
 
 ### Environment variables (.env)
-See `.env.example` for all options (feeds, delays, Tiri/Groq keys, Facebook multi-accounts, Twitter tokens, platforms).
+See `.env.example` for all options (Superfeedr credentials, callback URL, Tiri/Groq keys, Facebook multi-accounts, Twitter tokens, platforms).
 
 ### Structure
 ```
 app/
-  config.py           # loads env and validates
-  logging.py          # logger setup
+  config.py              # loads env and validates
+  logging.py             # logger setup
+  server.py              # FastAPI WebSub server
   clients/
-    facebook.py       # Facebook Graph API client
-    groq_llm.py       # Groq chat completions client
-    twitter.py        # Twitter/X client
-  rss/
-    fetch.py          # feed fetch and parse
+    facebook.py          # Facebook Graph API client
+    groq_llm.py          # Groq chat completions client
+    twitter.py           # Twitter/X client
+  websub/
+    superfeedr.py        # WebSub subscription manager
+  xml/
+    parser.py            # robust RSS/Atom parser
   cli/
-    publish_once.py   # simple CLI: fetch, rewrite, post
-  server.py           # FastAPI app with /health and /webhook
+    subscribe_feeds.py   # one-time feed subscription
+  storage/
+    db.py                # SQLite storage with TTL
 ```
 
-### Notes
-- This project is independent of existing files; it does not modify them.
-- Add a webhook server later if you want WebSub push.
- - For Facebook posts, ensure items have an image URL; otherwise, extend to use a link post endpoint.
+### How it works
+1. **Subscribe to feeds**: `python -m app.cli.subscribe_feeds` (one-time)
+2. **Start server**: `uvicorn app.server:app --host 0.0.0.0 --port 8000`
+3. **Instant processing**: When news drops, Superfeedr pushes to your webhook
+4. **AI rephrasing**: Each item gets rewritten by Tiri/Groq LLM
+5. **Multi-platform posting**: Posts to all configured accounts
 
 ### Ubuntu deployment
-See `DEPLOY_UBUNTU.md` for a full step-by-step guide (systemd timer, server service, and cron alternative).
+See `DEPLOY_UBUNTU.md` for a complete step-by-step guide (systemd service, Nginx, SSL).
 
 

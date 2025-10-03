@@ -5,9 +5,15 @@ from dotenv import load_dotenv
 
 
 class AppConfig(BaseModel):
-    feeds: List[str] = Field(default_factory=list)
+    # WebSub/Superfeedr
+    superfeedr_user: str
+    superfeedr_pass: str
+    superfeedr_hub_url: str = "https://push.superfeedr.com"
+    callback_url: str
+    webhook_port: int = 8000
+    
+    # Processing
     process_delay_seconds: int = 15
-    feed_refresh_seconds: int = 300
     storage_ttl_seconds: int = 86400
     log_dir: str = "logs"
 
@@ -29,8 +35,11 @@ class AppConfig(BaseModel):
 def load_config() -> AppConfig:
     load_dotenv()
 
-    feeds_env = os.getenv("FEEDS", "").strip()
-    feeds = [u.strip() for u in feeds_env.split(",") if u.strip()]
+    # WebSub/Superfeedr credentials
+    superfeedr_user = os.getenv("SUPERFEEDR_USER", "").strip()
+    superfeedr_pass = os.getenv("SUPERFEEDR_PASS", "").strip()
+    callback_url = os.getenv("CALLBACK_URL", "").strip()
+    webhook_port = int(os.getenv("WEBHOOK_PORT", "8000"))
 
     tiri_keys_env = os.getenv("TIRI_API_KEYS", "").strip()
     tiri_api_keys = [k.strip() for k in tiri_keys_env.split(",") if k.strip()]
@@ -48,9 +57,11 @@ def load_config() -> AppConfig:
     twitter_bearer_tokens = [v.strip() for v in twitter_tokens_env.split(",") if v.strip()]
 
     data = {
-        "feeds": feeds,
+        "superfeedr_user": superfeedr_user,
+        "superfeedr_pass": superfeedr_pass,
+        "callback_url": callback_url,
+        "webhook_port": webhook_port,
         "process_delay_seconds": int(os.getenv("PROCESS_DELAY_SECONDS", "15")),
-        "feed_refresh_seconds": int(os.getenv("FEED_REFRESH_SECONDS", "300")),
         "storage_ttl_seconds": int(os.getenv("STORAGE_TTL_SECONDS", "86400")),
         "log_dir": os.getenv("LOG_DIR", "logs"),
         "tiri_base_url": os.getenv("TIRI_BASE_URL", ""),
